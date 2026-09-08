@@ -30,6 +30,9 @@ export default function Home() {
   const [showPromptPanel, setShowPromptPanel] = useState(false);
   const [promptDraft, setPromptDraft] = useState("");
   const [savingPrompt, setSavingPrompt] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+  const [savingTitle, setSavingTitle] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const active = conversations.find((c) => c.id === activeId) ?? null;
@@ -42,7 +45,22 @@ export default function Home() {
     if (activeId) loadMessages(activeId);
     else setMessages([]);
     setShowPromptPanel(false);
+    setEditingTitle(false);
     setError(null);
+  }, [activeId]);
+
+  // Recharge les messages/la liste quand on revient sur l'onglet (ex: message
+  // envoyé depuis un autre appareil/onglet pendant que celui-ci était en arrière-plan).
+  useEffect(() => {
+    function handleFocus() {
+      refreshConversations();
+      if (activeId) loadMessages(activeId);
+    }
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") handleFocus();
+    });
+    return () => window.removeEventListener("focus", handleFocus);
   }, [activeId]);
 
   useEffect(() => {
@@ -133,6 +151,41 @@ export default function Home() {
     }
   }
 
+  function startEditTitle() {
+    if (!active) return;
+    setTitleDraft(active.title);
+    setEditingTitle(true);
+  }
+
+  async function saveTitle() {
+    if (!active || !titleDraft.trim()) {
+      setEditingTitle(false);
+      return;
+    }
+    setSavingTitle(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/conversations/${active.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: titleDraft.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error || "Échec du renommage.");
+        return;
+      }
+      setConversations((prev) =>
+        prev.map((c) => (c.id === active.id ? { ...c, title: titleDraft.trim() } : c))
+      );
+      setEditingTitle(false);
+    } catch {
+      setError("Impossible de contacter le serveur.");
+    } finally {
+      setSavingTitle(false);
+    }
+  }
+
   function openPromptPanel() {
     if (!active) return;
     setPromptDraft(active.system_prompt || "");
@@ -185,7 +238,10 @@ export default function Home() {
           {conversations.map((c) => (
             <button
               key={c.id}
-              onClick={() => setActiveId(c.id)}
+              onClick={() => {
+                setActiveId(c.id);
+                loadMessages(c.id);
+              }}
               className={`w-full text-left px-5 py-3 border-b border-rule/60 transition-colors ${
                 c.id === activeId ? "bg-accent/10 border-l-2 border-l-accent" : "hover:bg-white/[0.03]"
               }`}
@@ -207,7 +263,28 @@ export default function Home() {
         {active ? (
           <>
             <header className="flex items-center justify-between px-6 py-4 border-b border-rule">
-              <h2 className="text-sm text-ink truncate">{active.title}</h2>
+              {editingTitle ? (
+                <input
+                  autoFocus
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onBlur={saveTitle}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveTitle();
+                    if (e.key === "Escape") setEditingTitle(false);
+                  }}
+                  disabled={savingTitle}
+                  className="text-sm text-ink bg-panel border border-accent px-2 py-1 outline-none flex-1 max-w-xs"
+                />
+              ) : (
+                <h2
+                  onClick={startEditTitle}
+                  className="text-sm text-ink truncate cursor-text hover:text-accent"
+                  title="Cliquer pour renommer"
+                >
+                  {active.title}
+                </h2>
+              )}
               <div className="flex items-center gap-3">
                 <button
                   onClick={openPromptPanel}
