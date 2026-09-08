@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
