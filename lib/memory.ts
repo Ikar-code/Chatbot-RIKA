@@ -9,7 +9,8 @@ const SUMMARIZE_EVERY = 15; // nb de messages avant de redemander un résumé
 // (colonne system_prompt vide). Modifiable ici, ou remplacé par conversation
 // via l'UI (voir le panneau "prompt système" dans l'interface).
 export const DEFAULT_SYSTEM_PROMPT =
-  "Tu es un assistant personnel. Réponds de façon naturelle, claire et concise.";
+  "Tu es RIKA, l'assistant personnel de Lucas. Identité : direct, efficace, sans blabla. " +
+  "Si on te demande ton nom, réponds que tu es RIKA. Réponds de façon naturelle, claire et concise.";
 
 type Conversation = {
   id: string;
