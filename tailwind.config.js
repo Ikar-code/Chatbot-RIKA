@@ -4,14 +4,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        paper: "#EFEAE0",
-        ink: "#1F2421",
-        rule: "#C9C0AC",
-        signal: "#3A5A78",
+        bg: "#0F1115",
+        panel: "#171A21",
+        ink: "#E7E9EE",
+        dim: "#7D8496",
+        rule: "#262B35",
+        accent: "#C99A5B",
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        sans: ["'IBM Plex Sans'", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["'IBM Plex Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
     },
   },
