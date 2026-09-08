@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { provider, systemPrompt } = await req.json();
+  const { provider, systemPrompt, title } = await req.json();
 
   const update: Record<string, string> = {};
 
@@ -19,6 +19,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ error: "Prompt système invalide" }, { status: 400 });
     }
     update.system_prompt = systemPrompt;
+  }
+
+  if (title !== undefined) {
+    if (typeof title !== "string" || !title.trim()) {
+      return NextResponse.json({ error: "Titre invalide" }, { status: 400 });
+    }
+    update.title = title.trim();
   }
 
   if (Object.keys(update).length === 0) {
