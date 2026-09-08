@@ -70,13 +70,33 @@ export default function Home() {
   async function refreshConversations() {
     const res = await fetch("/api/conversations");
     const data = await res.json();
-    setConversations(data.conversations ?? []);
-    if (!activeId && data.conversations?.length) setActiveId(data.conversations[0].id);
+    if (!res.ok || data.error) {
+      setError(data.error || "Impossible de charger les conversations.");
+      return;
+    }
+    const list = data.conversations ?? [];
+    setConversations(list);
+
+    if (!activeId && list.length) {
+      const savedId = localStorage.getItem("rika-active-conversation");
+      const stillExists = savedId && list.some((c: Conversation) => c.id === savedId);
+      setActiveId(stillExists ? savedId : list[0].id);
+    }
+  }
+
+  function selectConversation(id: string) {
+    setActiveId(id);
+    localStorage.setItem("rika-active-conversation", id);
+    loadMessages(id);
   }
 
   async function loadMessages(conversationId: string) {
     const res = await fetch(`/api/conversations/${conversationId}/messages`);
     const data = await res.json();
+    if (!res.ok || data.error) {
+      setError(data.error || "Impossible de charger les messages.");
+      return;
+    }
     setMessages(data.messages ?? []);
   }
 
@@ -89,6 +109,7 @@ export default function Home() {
     const data = await res.json();
     await refreshConversations();
     setActiveId(data.conversation.id);
+    localStorage.setItem("rika-active-conversation", data.conversation.id);
   }
 
   async function changeProvider(provider: Provider) {
@@ -238,10 +259,7 @@ export default function Home() {
           {conversations.map((c) => (
             <button
               key={c.id}
-              onClick={() => {
-                setActiveId(c.id);
-                loadMessages(c.id);
-              }}
+              onClick={() => selectConversation(c.id)}
               className={`w-full text-left px-5 py-3 border-b border-rule/60 transition-colors ${
                 c.id === activeId ? "bg-accent/10 border-l-2 border-l-accent" : "hover:bg-white/[0.03]"
               }`}
