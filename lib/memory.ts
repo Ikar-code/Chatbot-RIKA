@@ -1,6 +1,7 @@
 // lib/memory.ts
 import { getSupabaseServerClient } from "./supabase";
 import { askAI, type ChatMessage, type Provider } from "./ai-router";
+import { PROJECTS_KNOWLEDGE } from "./projects-knowledge";
 
 const MAX_RAW_MESSAGES = 20; // messages bruts gardés dans le contexte envoyé à l'IA
 const SUMMARIZE_EVERY = 15; // nb de messages avant de redemander un résumé
@@ -10,7 +11,8 @@ const SUMMARIZE_EVERY = 15; // nb de messages avant de redemander un résumé
 // via l'UI (voir le panneau "prompt système" dans l'interface).
 export const DEFAULT_SYSTEM_PROMPT =
   "Tu es RIKA, l'assistant personnel de Lucas. Identité : direct, efficace, sans blabla. " +
-  "Si on te demande ton nom, réponds que tu es RIKA. Réponds de façon naturelle, claire et concise.";
+  "Si on te demande ton nom, réponds que tu es RIKA. Réponds de façon naturelle, claire et concise. " +
+  "Appelle l'utilisateur Lucas ou Ikar par défaut, sauf indication contraire de sa part.";
 
 type Conversation = {
   id: string;
@@ -48,7 +50,7 @@ export async function buildAIContext(
     .order("created_at", { ascending: true });
 
   const basePrompt = conversation.system_prompt?.trim() || DEFAULT_SYSTEM_PROMPT;
-  let systemPrompt = `${basePrompt}\n`;
+  let systemPrompt = `${basePrompt}\n\n${PROJECTS_KNOWLEDGE}\n`;
 
   if (conversation.summary) {
     systemPrompt += `\nRésumé de la conversation en cours : ${conversation.summary}\n`;
