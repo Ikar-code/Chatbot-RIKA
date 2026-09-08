@@ -5,11 +5,18 @@ import { askAI, type ChatMessage, type Provider } from "./ai-router";
 const MAX_RAW_MESSAGES = 20; // messages bruts gardés dans le contexte envoyé à l'IA
 const SUMMARIZE_EVERY = 15; // nb de messages avant de redemander un résumé
 
+// Utilisé quand une conversation n'a pas de prompt système personnalisé
+// (colonne system_prompt vide). Modifiable ici, ou remplacé par conversation
+// via l'UI (voir le panneau "prompt système" dans l'interface).
+export const DEFAULT_SYSTEM_PROMPT =
+  "Tu es un assistant personnel. Réponds de façon naturelle, claire et concise.";
+
 type Conversation = {
   id: string;
   title: string;
   summary: string;
   provider: Provider;
+  system_prompt: string;
   msg_since_summary: number;
 };
 
@@ -39,8 +46,8 @@ export async function buildAIContext(
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
 
-  let systemPrompt =
-    "Tu es un assistant personnel. Réponds de façon naturelle, claire et concise.\n";
+  const basePrompt = conversation.system_prompt?.trim() || DEFAULT_SYSTEM_PROMPT;
+  let systemPrompt = `${basePrompt}\n`;
 
   if (conversation.summary) {
     systemPrompt += `\nRésumé de la conversation en cours : ${conversation.summary}\n`;
