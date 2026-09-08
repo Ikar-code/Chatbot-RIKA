@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 type Provider = "groq" | "gemini";
 
@@ -382,7 +383,13 @@ export default function Home() {
                         : "bg-panel border border-rule text-ink"
                     }`}
                   >
-                    {m.content}
+                    {m.role === "assistant" ? (
+                      <div className="markdown-body">
+                        <ReactMarkdown>{m.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      m.content
+                    )}
                   </div>
                 </div>
               ))}
