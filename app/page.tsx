@@ -166,14 +166,17 @@ export default function Home() {
   }
 
   return (
-    <main className="flex h-screen">
-      {/* Sidebar — liste des conversations, présentée comme un index de fiches */}
-      <aside className="w-72 shrink-0 border-r border-rule flex flex-col">
+    <main className="flex h-screen bg-bg font-sans">
+      {/* Sidebar */}
+      <aside className="w-72 shrink-0 border-r border-rule flex flex-col bg-panel">
         <div className="px-5 py-4 border-b border-rule">
-          <h1 className="font-mono text-sm tracking-tight text-ink">ia perso</h1>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-accent" />
+            <h1 className="font-mono text-sm font-medium tracking-wide text-ink">RIKA</h1>
+          </div>
           <button
             onClick={createConversation}
-            className="mt-3 w-full text-left text-sm border border-rule px-3 py-2 text-ink hover:bg-ink hover:text-paper transition-colors"
+            className="mt-3 w-full text-left text-sm border border-rule px-3 py-2 text-dim hover:border-accent hover:text-ink transition-colors font-mono"
           >
             + nouvelle conversation
           </button>
@@ -184,30 +187,32 @@ export default function Home() {
               key={c.id}
               onClick={() => setActiveId(c.id)}
               className={`w-full text-left px-5 py-3 border-b border-rule/60 transition-colors ${
-                c.id === activeId ? "bg-ink text-paper" : "hover:bg-rule/20"
+                c.id === activeId ? "bg-accent/10 border-l-2 border-l-accent" : "hover:bg-white/[0.03]"
               }`}
             >
-              <div className="text-sm truncate">{c.title}</div>
-              <div className="font-mono text-[11px] opacity-60 mt-0.5">{c.provider}</div>
+              <div className={`text-sm truncate ${c.id === activeId ? "text-ink" : "text-dim"}`}>
+                {c.title}
+              </div>
+              <div className="font-mono text-[11px] text-dim/70 mt-0.5">{c.provider}</div>
             </button>
           ))}
           {conversations.length === 0 && (
-            <p className="px-5 py-4 text-sm text-ink/60">Aucune conversation pour l&apos;instant.</p>
+            <p className="px-5 py-4 text-sm text-dim">Aucune conversation pour l&apos;instant.</p>
           )}
         </div>
       </aside>
 
       {/* Panneau principal */}
-      <section className="flex-1 flex flex-col">
+      <section className="flex-1 flex flex-col bg-bg">
         {active ? (
           <>
             <header className="flex items-center justify-between px-6 py-4 border-b border-rule">
-              <h2 className="text-sm text-ink/80 truncate">{active.title}</h2>
+              <h2 className="text-sm text-ink truncate">{active.title}</h2>
               <div className="flex items-center gap-3">
                 <button
                   onClick={openPromptPanel}
-                  className="font-mono text-xs px-3 py-1 border border-rule text-ink/70 hover:bg-rule/20"
-                  title="Définir les instructions de base de l'IA pour cette conversation"
+                  className="font-mono text-xs px-3 py-1 border border-rule text-dim hover:border-accent hover:text-ink"
+                  title="Définir les instructions de base de RIKA pour cette conversation"
                 >
                   prompt système
                 </button>
@@ -216,8 +221,10 @@ export default function Home() {
                     <button
                       key={p}
                       onClick={() => changeProvider(p)}
-                      className={`px-3 py-1 border border-rule ${
-                        active.provider === p ? "bg-signal text-paper border-signal" : "text-ink/70"
+                      className={`px-3 py-1 border ${
+                        active.provider === p
+                          ? "bg-accent text-bg border-accent"
+                          : "border-rule text-dim hover:text-ink"
                       }`}
                     >
                       {p}
@@ -228,29 +235,29 @@ export default function Home() {
             </header>
 
             {showPromptPanel && (
-              <div className="border-b border-rule px-6 py-4 bg-rule/10 space-y-2">
-                <label className="font-mono text-[11px] text-ink/60">
+              <div className="border-b border-rule px-6 py-4 bg-panel space-y-2">
+                <label className="font-mono text-[11px] text-dim">
                   Instructions de base (identité, ton, règles) pour cette conversation —
-                  laisser vide pour garder le comportement par défaut.
+                  laisser vide pour garder le comportement par défaut de RIKA.
                 </label>
                 <textarea
                   value={promptDraft}
                   onChange={(e) => setPromptDraft(e.target.value)}
                   rows={6}
-                  className="w-full bg-paper border border-rule px-3 py-2 text-sm outline-none focus:border-signal font-mono"
+                  className="w-full bg-bg border border-rule px-3 py-2 text-sm outline-none focus:border-accent font-mono text-ink"
                   placeholder="Ex : Tu es RIKA, assistant direct et efficace. Pas de blabla. Réponses courtes..."
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={saveSystemPrompt}
                     disabled={savingPrompt}
-                    className="px-3 py-1.5 text-sm bg-signal text-paper disabled:opacity-40"
+                    className="px-3 py-1.5 text-sm bg-accent text-bg disabled:opacity-40 font-mono"
                   >
                     {savingPrompt ? "Enregistrement…" : "Enregistrer"}
                   </button>
                   <button
                     onClick={() => setShowPromptPanel(false)}
-                    className="px-3 py-1.5 text-sm border border-rule text-ink/70"
+                    className="px-3 py-1.5 text-sm border border-rule text-dim hover:text-ink"
                   >
                     Annuler
                   </button>
@@ -259,29 +266,32 @@ export default function Home() {
             )}
 
             {error && (
-              <div className="px-6 py-3 bg-red-50 border-b border-red-200 text-sm text-red-700 flex items-center justify-between">
+              <div className="px-6 py-3 bg-red-950/40 border-b border-red-900 text-sm text-red-300 flex items-center justify-between">
                 <span>{error}</span>
-                <button onClick={() => setError(null)} className="font-mono text-xs opacity-60 hover:opacity-100">
+                <button onClick={() => setError(null)} className="font-mono text-xs text-red-400/70 hover:text-red-300">
                   fermer
                 </button>
               </div>
             )}
 
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
               {messages.map((m) => (
                 <div key={m.id} className={m.role === "user" ? "text-right" : "text-left"}>
+                  {m.role === "assistant" && (
+                    <div className="font-mono text-[10px] text-accent/80 tracking-wide mb-1">RIKA</div>
+                  )}
                   <div
                     className={`inline-block max-w-[70%] px-4 py-2 text-sm text-left whitespace-pre-wrap ${
                       m.role === "user"
-                        ? "bg-ink text-paper"
-                        : "bg-paper border border-rule text-ink"
+                        ? "bg-accent/15 border border-accent/40 text-ink"
+                        : "bg-panel border border-rule text-ink"
                     }`}
                   >
                     {m.content}
                   </div>
                 </div>
               ))}
-              {sending && <p className="font-mono text-xs text-ink/50">l&apos;IA réfléchit…</p>}
+              {sending && <p className="font-mono text-xs text-dim">RIKA réfléchit…</p>}
             </div>
 
             <form
@@ -295,19 +305,19 @@ export default function Home() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Écris un message…"
-                className="flex-1 bg-transparent border border-rule px-3 py-2 text-sm outline-none focus:border-signal"
+                className="flex-1 bg-panel border border-rule px-3 py-2 text-sm outline-none focus:border-accent text-ink placeholder:text-dim"
               />
               <button
                 type="submit"
                 disabled={sending}
-                className="px-4 py-2 text-sm bg-signal text-paper disabled:opacity-40"
+                className="px-4 py-2 text-sm bg-accent text-bg disabled:opacity-40 font-mono"
               >
                 Envoyer
               </button>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-ink/50 text-sm">
+          <div className="flex-1 flex items-center justify-center text-dim text-sm">
             Crée une conversation pour commencer.
           </div>
         )}
