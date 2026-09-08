@@ -8,8 +8,8 @@ export type ChatMessage = { role: ChatRole; content: string };
 export type Provider = "groq" | "gemini";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GROQ_MODEL = "openai/gpt-oss-120b";
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 function geminiUrl(): string {
   const key = process.env.GEMINI_API_KEY;
