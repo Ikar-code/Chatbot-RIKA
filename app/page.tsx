@@ -68,7 +68,7 @@ export default function Home() {
   }, [messages]);
 
   async function refreshConversations() {
-    const res = await fetch("/api/conversations");
+    const res = await fetch("/api/conversations", { cache: "no-store" });
     const data = await res.json();
     if (!res.ok || data.error) {
       setError(data.error || "Impossible de charger les conversations.");
@@ -91,7 +91,7 @@ export default function Home() {
   }
 
   async function loadMessages(conversationId: string) {
-    const res = await fetch(`/api/conversations/${conversationId}/messages`);
+    const res = await fetch(`/api/conversations/${conversationId}/messages`, { cache: "no-store" });
     const data = await res.json();
     if (!res.ok || data.error) {
       setError(data.error || "Impossible de charger les messages.");
