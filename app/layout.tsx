@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IA perso",
-  description: "Assistant personnel — Groq / Gemini",
+  title: "RIKA",
+  description: "RIKA — Responsive Intelligent Knowledge Assistant",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
